@@ -51,17 +51,17 @@ class SparkVendingMachineTest extends TestCase
 		$this->vendingMachine->addProducts([self::SKU_SPARKLING_WATER, self::SKU_SPARKLING_WATER, self::SKU_SPARK_PASTA, self::SKU_SPARKLING_WATER]);
 
 		// check product count
-		$products = $this->vendingMachine->dispensedProducts();
+		$products = $this->vendingMachine->listProducts();
 		$this->assertEquals(3, $products[self::SKU_SPARKLING_WATER]['count']);
 
 		// remove one and check product count
 		$this->vendingMachine->getInventoryManager()->removeProduct(self::SKU_SPARKLING_WATER);
-		$products = $this->vendingMachine->dispensedProducts();
+		$products = $this->vendingMachine->listProducts();
 		$this->assertEquals(2, $products[self::SKU_SPARKLING_WATER]['count']);
 
 		// set and check product count
 		$this->vendingMachine->getInventoryManager()->setProductCount(self::SKU_SPARKLING_WATER, 10);
-		$products = $this->vendingMachine->dispensedProducts();
+		$products = $this->vendingMachine->listProducts();
 		$this->assertEquals(10, $products[self::SKU_SPARKLING_WATER]['count']);
 	}
 
@@ -83,21 +83,39 @@ class SparkVendingMachineTest extends TestCase
 	{
 		// add products
 		$this->vendingMachine->addProducts([self::SKU_SPARKLING_WATER, self::SKU_SPARK_PASTA]);
-		$money = 5.25;
+		$sparkCoin = 5;
 
 		// select product
 		$this->vendingMachine->selectProduct(self::SKU_SPARK_PASTA);
 
 		// add sum to balance and check balance
-		$this->vendingMachine->addBalance($money);
-		$this->assertEquals($money, $this->vendingMachine->getPaymentManager()->getBalance());
+		$this->vendingMachine->insertCoin($sparkCoin);
+		$this->assertEquals($sparkCoin, $this->vendingMachine->getPaymentManager()->getBalance());
 
 		// dispense
 		$this->vendingMachine->purchaseProduct();
 
 		// check balance and change after purchase
 		$this->assertEquals(0, $this->vendingMachine->getPaymentManager()->getBalance());
-		$this->assertEquals($money, $this->vendingMachine->getPaymentManager()->getChange());
+		$this->assertEquals($sparkCoin, $this->vendingMachine->getPaymentManager()->getChange());
+	}
+
+	public function testDispensedProductsCheck()
+	{
+		$this->vendingMachine->addProducts([self::SKU_SPARKLING_WATER, self::SKU_SPARKLING_WATER, self::SKU_SPARK_SODA]);
+		$this->vendingMachine->selectProduct(self::SKU_SPARKLING_WATER);
+		$this->vendingMachine->purchaseProduct();
+		$this->vendingMachine->selectProduct(self::SKU_SPARKLING_WATER);
+		$this->vendingMachine->purchaseProduct();
+		$dispensedProducts = $this->vendingMachine->dispensedProducts();
+		$this->assertEquals([self::SKU_SPARKLING_WATER, self::SKU_SPARKLING_WATER], $dispensedProducts);
+	}
+
+	public function testDispenseProductOutOfStock()
+	{
+		$this->vendingMachine->addProducts([self::SKU_SPARKLING_WATER, self::SKU_SPARKLING_WATER, self::SKU_SPARK_SODA]);
+		$this->vendingMachine->selectProduct(self::SKU_SPARK_PASTA);
+		$this->assertFalse($this->vendingMachine->purchaseProduct());
 	}
 
 	public function testDispensesProductCountCheckAfterDispense()
@@ -113,17 +131,13 @@ class SparkVendingMachineTest extends TestCase
 		$this->vendingMachine->selectProduct(self::SKU_SPARK_PASTA);
 		$this->assertTrue($this->vendingMachine->purchaseProduct());
 
-		// dispense out-of-stock
-		$this->vendingMachine->selectProduct(self::SKU_SPARK_PASTA);
-		$this->assertFalse($this->vendingMachine->purchaseProduct());
-
 		// dispense in-stock again
 		$this->vendingMachine->addProducts([self::SKU_SPARK_PASTA]);
 		$this->vendingMachine->selectProduct(self::SKU_SPARK_PASTA);
 		$this->assertTrue($this->vendingMachine->purchaseProduct());
 
 		// get dispensed products and check their counts
-		$products = $this->vendingMachine->dispensedProducts();
+		$products = $this->vendingMachine->listProducts();
 		$expected = $this->prepareProductCountList(1, 0, 1);
 		$actual = $this->prepareProductCountList($products[self::SKU_SPARKLING_WATER]['count'], $products[self::SKU_SPARK_PASTA]['count'], $products[self::SKU_SPARK_SODA]['count']);
 
@@ -134,7 +148,7 @@ class SparkVendingMachineTest extends TestCase
 	{
 		$money = -4.75;
 		$balance = $this->vendingMachine->getPaymentManager()->getBalance();
-		$this->vendingMachine->addBalance($money);
+		$this->vendingMachine->insertCoin($money);
 		$this->assertEquals($balance, $this->vendingMachine->getPaymentManager()->getBalance());
 	}
 

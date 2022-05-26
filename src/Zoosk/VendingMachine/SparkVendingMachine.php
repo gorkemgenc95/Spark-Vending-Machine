@@ -93,14 +93,14 @@ class SparkVendingMachine
 	}
 
 	/**
-	 * Inserted money is added to the dispenser balance
+	 * Adds the inserted coins to the balance
 	 *
-	 * @param float $value value to be added to the balance
+	 * @param int $sparkCoin
 	 * @return void
 	 */
-	public function addBalance(float $value): void
+	public function insertCoin(int $sparkCoin)
 	{
-		$this->paymentManager->addBalance($value);
+		$this->paymentManager->addBalance($sparkCoin);
 	}
 
 	/**
@@ -111,6 +111,7 @@ class SparkVendingMachine
 	 */
 	public function purchaseProduct(): bool
 	{
+
 		if (empty($this->selectedSKU)) {
 			return false;
 		}
@@ -129,8 +130,13 @@ class SparkVendingMachine
 	 *
 	 * @return string[] List of products
 	 */
-	public function dispensedProducts(): array
+	public function listProducts(): array
 	{
 		return $this->inventoryManager->listProducts();
+	}
+
+	public function dispensedProducts(): array
+	{
+		return $this->inventoryManager->getDispensedProducts();
 	}
 }

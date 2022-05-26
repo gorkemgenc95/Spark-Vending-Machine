@@ -4,9 +4,9 @@ namespace Zoosk\VendingMachine;
 
 class PaymentManager
 {
-	private float $balance;
-	private float $price;
-	private float $change;
+	private int $balance;
+	private int $price;
+	private int $change;
 
 	/**
 	 * Constructor
@@ -21,9 +21,9 @@ class PaymentManager
 	/**
 	 * change getter function
 	 *
-	 * @return float
+	 * @return int
 	 */
-	public function getChange(): float
+	public function getChange(): int
 	{
 		return $this->change;
 	}
@@ -31,9 +31,9 @@ class PaymentManager
 	/**
 	 * price getter function
 	 *
-	 * @return float
+	 * @return int
 	 */
-	public function getPrice(): float
+	public function getPrice(): int
 	{
 		return $this->price;
 	}
@@ -41,9 +41,9 @@ class PaymentManager
 	/**
 	 * balance getter function
 	 *
-	 * @return float
+	 * @return int
 	 */
-	public function getBalance(): float
+	public function getBalance(): int
 	{
 		return $this->balance;
 	}
@@ -51,10 +51,10 @@ class PaymentManager
 	/**
 	 * Adds given sum into the current balance
 	 *
-	 * @param float $sum value to be added to total balance
+	 * @param int $sum value to be added to total balance
 	 * @return void
 	 */
-	public function addBalance(float $sum)
+	public function addBalance(int $sum)
 	{
 		if ($sum > 0) {
 			$this->balance = $this->balance + $sum;
@@ -64,10 +64,10 @@ class PaymentManager
 	/**
 	 * Sets the price of the selected product for payment
 	 *
-	 * @param float $price price of the selected product
+	 * @param int $price price of the selected product
 	 * @return void
 	 */
-	public function setPrice(float $price)
+	public function setPrice(int $price)
 	{
 		$this->price = $price;
 	}

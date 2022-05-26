@@ -5,6 +5,7 @@ namespace Zoosk\VendingMachine;
 use Zoosk\VendingMachine\Product\SparklingWater;
 use Zoosk\VendingMachine\Product\SparkPasta;
 use Zoosk\VendingMachine\Product\SparkSoda;
+use Zoosk\VendingMachine\Product\SparkPizza;
 
 class InventoryManager
 {
@@ -12,6 +13,8 @@ class InventoryManager
 	private SparklingWater $sparklingWater;
 	private SparkPasta $sparkPasta;
 	private SparkSoda $sparkSoda;
+	private SparkPizza $sparkPizza;
+	private array $dispensedProducts = [];
 
 	/**
 	 * Constructor
@@ -21,10 +24,12 @@ class InventoryManager
 		$this->sparklingWater = new SparklingWater();
 		$this->sparkPasta = new SparkPasta();
 		$this->sparkSoda = new SparkSoda();
+		$this->sparkPizza = new SparkPizza();
 		$this->products = [
 			$this->sparklingWater,
 			$this->sparkPasta,
-			$this->sparkSoda
+			$this->sparkSoda,
+			$this->sparkPizza
 		];
 	}
 
@@ -32,7 +37,7 @@ class InventoryManager
 	 * Finds the related object for the provided sku
 	 *
 	 * @param string $sku identifier of the product
-	 * @return false|SparklingWater|SparkPasta|SparkSoda
+	 * @return false|SparklingWater|SparkPizza|SparkSoda
 	 */
 	private function getProductByIdentifier(string $sku)
 	{
@@ -97,6 +102,7 @@ class InventoryManager
 	{
 		$product = $this->getProductByIdentifier($sku);
 		if ($product) {
+			$this->dispensedProducts[] = $sku;
 			$product->removeOne();
 		}
 	}
@@ -114,5 +120,15 @@ class InventoryManager
 		if ($product) {
 			$product->setCount($count);
 		}
+	}
+
+	/**
+	 * Return the list of all dispensed products so far
+	 *
+	 * @return array
+	 */
+	public function getDispensedProducts(): array
+	{
+		return $this->dispensedProducts;
 	}
 }
